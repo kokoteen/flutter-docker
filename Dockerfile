@@ -1,6 +1,10 @@
 FROM ubuntu:20.04
-ENV DEBIAN_FRONTEND="noninteractive" \
-	ANDROID_SDK_ROOT=/home/developer/android
+
+ENV USER="developer"
+ENV DEBIAN_FRONTEND="noninteractive" 
+ENV	ANDROID_SDK_ROOT=/home/$USER/android 
+ENV FLUTTER_HOME="/home/$USER/flutter"
+ENV PATH="$ANDROID_SDK_ROOT/cmdline-tools/tools/bin:$ANDROID_SDK_ROOT/emulator:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/platforms:$FLUTTER_HOME/bin:$PATH"
 
 # Prerequisites
 RUN apt-get update \
@@ -8,12 +12,12 @@ RUN apt-get update \
 	&& apt-get autoremove -y
 
 # Set up new user
-RUN useradd -ms /bin/bash developer \
-	&& echo "developer:developer" | chpasswd \
-	&& adduser developer sudo
+RUN useradd -ms /bin/bash $USER \
+	&& echo "$USER:$USER" | chpasswd \
+	&& adduser $USER sudo
 
-USER developer
-WORKDIR /home/developer
+USER $USER
+WORKDIR /home/$USER
    
 # Prepare Android directories and system variables
 RUN bash -c 'mkdir -p android/{cmdline-tools,emulator,licenses,patcher,platform-tools,platforms,system-images}' \
@@ -21,21 +25,25 @@ RUN bash -c 'mkdir -p android/{cmdline-tools,emulator,licenses,patcher,platform-
 	&& touch .android/repositories.cfg 
 
 # Android SDK
-RUN wget -O sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-6609375_latest.zip \
+RUN wget -O sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip \
 	&& unzip sdk-tools.zip \
 	&& rm sdk-tools.zip \
-	&& mv tools android/cmdline-tools/tools \
-	&& yes | /home/developer/android/cmdline-tools/tools/bin/sdkmanager --licenses \
-	&& /home/developer/android/cmdline-tools/tools/bin/sdkmanager --install \
+	&& mkdir -p $ANDROID_SDK_ROOT/cmdline-tools/tools \
+  	&& mv /home/$USER/cmdline-tools/bin $ANDROID_SDK_ROOT/cmdline-tools/tools \
+  	&& mv /home/$USER/cmdline-tools/lib $ANDROID_SDK_ROOT/cmdline-tools/tools \
+	&& yes | sdkmanager --licenses \
+	&& sdkmanager --install \
 	"system-images;android-29;google_apis_playstore;x86_64" \
 	"platforms;android-29" \
 	"platform-tools" \
-	"build-tools;29.0.3" 
+	"build-tools;29.0.3" \
+	"cmdline-tools;latest" 
 
 # Flutter SDK 
-RUN git clone https://github.com/flutter/flutter.git \ 
-	&& /home/developer/flutter/bin/flutter precache \
-	&& yes | /home/developer/flutter/bin/flutter doctor --android-licenses \
-	&& /home/developer/flutter/bin/flutter doctor \
-	&& /home/developer/flutter/bin/flutter emulators --create \
-	&& /home/developer/flutter/bin/flutter update-packages
+RUN git clone https://github.com/flutter/flutter.git -b stable \
+	&& flutter config --no-analytics \
+	&& flutter precache \
+	&& yes | flutter doctor --android-licenses \
+	&& flutter doctor -v \
+	&& flutter emulators --create \
+	&& flutter update-packages

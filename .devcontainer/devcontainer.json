@@ -1,5 +1,6 @@
 {
  "name": "flutter_docker",
+//  "image": "matspfeiffer/flutter",
  "context": "..",
  "dockerFile": "../Dockerfile",
  "remoteUser": "developer",
@@ -7,12 +8,9 @@
      "source=/dev/bus/usb,target=/dev/bus/usb,type=bind",
      "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind"
  ],
- "settings": {
-     "terminal.integrated.shell.linux": null
- },
  "remoteEnv": {
      "DISPLAY": "${localEnv:DISPLAY}",
-     "PATH": "${containerEnv:PATH}:/home/developer/android/cmdline-tools/tools/bin:/home/developer/android/cmdline-tools/tools:/home/developer/android/emulator:/home/developer/android/platform-tools:/home/developer/flutter/bin" 
+    //  "PATH": "${containerEnv:PATH}:/home/developer/android/cmdline-tools/tools/bin:/home/developer/android/emulator:/home/developer/android/platform-tools:/home/developer/android/platforms:/home/developer/flutter/bin" 
  },
  "runArgs": [
  	"--rm",  "--privileged",
@@ -21,7 +19,11 @@
  ],
  "extensions": [
 	"dart-code.flutter",
-	"dart-code.dart-code"
+	"dart-code.dart-code",
+	"mkxml.vscode-filesize",
+	"codezombiech.gitignore",
+	"albert.tabout",
+	"gruntfuggly.todo-tree"
 ],
  "workspaceMount": "source=${localWorkspaceFolder}/workspace,target=/home/developer/workspace,type=bind,consistency=delegated",
  "workspaceFolder": "/home/developer/workspace",
