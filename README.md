@@ -1,6 +1,6 @@
-# Develop flutter apps in docker
+# Develop flutter apps in container image
 
-Build docker image and create VSCode devcontainer in order to create a flutter apps.
+Build container image and create VSCode devcontainer in order to create a flutter apps.
 
 * enable emulators localy: `xhost local:$USER` 
 * list emulators: `emulator -list-avds`
